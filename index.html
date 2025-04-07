@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fancy Analog Clock</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style type="text/css">
+        @import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap");
+        
+        :root {
+            --primary-color: #29ff08;
+            --background-color: #000000;
+            --clock-background: #111;
+            --border-color: #333;
+            --text-color: #fff;
+        }
+
+        .light-theme {
+            --primary-color: #00aa00;
+            --background-color: #f0f0f0;
+            --clock-background: #fff;
+            --border-color: #ddd;
+            --text-color: #333;
+        }
+        
+        body {
+            background: var(--background-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            transition: background 0.3s ease;
+            padding: 0 10px;
+        }
+
+        .clock {
+            --clock-size: min(85vw, 85vh, 480px);
+            width: var(--clock-size);
+            height: var(--clock-size);
+            font-family: "Comfortaa", sans-serif;
+            margin: 0 auto 20px auto;
+            border-radius: 50%;
+            position: relative;
+            background: var(--clock-background);
+            border: min(10px, 2vw) solid var(--border-color);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .spike {
+            z-index: 5;
+            position: absolute;
+            width: 8px;
+            height: 1px;
+            background: var(--text-color);
+            opacity: 0.6;
+            line-height: 20px;
+            transform-origin: 50%;
+            inset: 0;
+            margin: auto;
+            font-style: normal;
+            transform: rotate(var(--rotate)) translateX(var(--dail-size));
+        }
+
+        .spike:nth-child(5n + 1) {
+            box-shadow: -7px 0 var(--text-color);
+            opacity: 0.6;
+        }
+
+        .spike:nth-child(5n + 1):after {
+            content: attr(data-i);
+            position: absolute;
+            right: 22px;
+            top: -10px;
+            transition: 1s linear;
+            transform: rotate(calc(var(--dRotate) - var(--rotate)));
+            color: var(--text-color);
+            font-weight: bold;
+        }
+
+        .seconds {
+            --dail-size: calc((var(--clock-size) / 2) - 8px);
+            font-weight: 800;
+            font-size: 16px;
+            color: white;
+            transform: rotate(calc(-1 * var(--dRotate)));
+            position: absolute;
+            inset: 0;
+            margin: auto;
+        }
+
+        .minutes {
+            --dail-size: calc((var(--clock-size) / 2) - 65px);
+            position: absolute;
+            inset: 0;
+            color: white;
+            font-size: 16px;
+            transform: rotate(calc(-1 * var(--dRotate)));
+            margin: auto;
+        }
+
+        .hour {
+            font-size: min(70px, 14vw);
+            font-weight: 900;
+            position: absolute;
+            color: var(--text-color);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .minute {
+            z-index: 10;
+            font-size: min(36px, 7vw);
+            font-weight: 900;
+            position: absolute;
+            background: transparent;
+            color: var(--text-color);
+            right: calc(var(--clock-size) / 3.25);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .minute:after {
+            content: "";
+            position: absolute;
+            border: 2px solid #29ff08;
+            border-right: none;
+            height: 50px;
+            left: -10px;
+            top: 50%;
+            border-radius: 50px 0 0 50px;
+            width: calc(var(--clock-size) / 2.4);
+            transform: translateY(-50%);
+        }
+		
+		.second{
+            z-index: 10;
+            font-size: min(18px, 4vw);
+            font-weight: 900;
+            position: absolute;
+            background: transparent;
+            color: var(--text-color);
+            right: calc(var(--clock-size) / 4.00);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+		
+        /* Hour markers */
+        .hour-markers {
+            position: absolute;
+            inset: 0;
+        }
+
+        .hour-marker {
+            position: absolute;
+            width: 4px;
+            height: 20px;
+            background: #29ff08;
+            left: 50%;
+            top: 10px;
+            transform-origin: 50% calc(var(--clock-size) / 2);
+            transform: translateX(-50%) rotate(var(--rotate));
+        }
+        
+        /* Estilo para a exibição da data */
+        .date-display {
+            color: var(--text-color);
+            font-family: "Comfortaa", sans-serif;
+            font-size: min(18px, 4vw);
+            margin: 15px 0;
+            text-align: center;
+            width: 100%;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        
+        /* Estilo para os controles */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            width: 100%;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background: var(--primary-color);
+            color: var(--background-color);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-family: "Comfortaa", sans-serif;
+            font-size: min(16px, 3.5vw);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 44px;
+        }
+        
+        button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <main class="clock">
+        <div class="seconds"></div>
+        <div class="minutes"></div>
+        <div class="minute">15</div>
+        <div class="hour">11</div>
+        <div class="second">59</div>
+    </main>
+    
+    <div class="date-display">
+        <span id="weekday">Segunda-feira</span>, 
+        <span id="day">01</span> de 
+        <span id="month">Janeiro</span> de 
+        <span id="year">2023</span>
+    </div>
+    
+    <div class="controls">
+        <button id="theme-toggle">Alternar Tema</button>
+        <button id="format-toggle">Formato 24h</button>
+    </div>
+
+    <script type="text/javascript">
+        const seconds = document.querySelector('.seconds');
+        const minutes = document.querySelector('.minutes');
+        const minute = document.querySelector('.minute');
+        const hour = document.querySelector('.hour');
+        const second = document.querySelector('.second');
+        const weekdayEl = document.getElementById('weekday');
+        const dayEl = document.getElementById('day');
+        const monthEl = document.getElementById('month');
+        const yearEl = document.getElementById('year');
+        const themeToggle = document.getElementById('theme-toggle');
+        const formatToggle = document.getElementById('format-toggle');
+        
+        // Verificar se há uma preferência salva no localStorage para o formato de hora
+        let is24HourFormat = localStorage.getItem('clockFormat') === '24h';
+        
+        // Verificar se há uma preferência salva no localStorage para o tema
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-theme');
+        }
+        
+        // Atualizar o texto do botão com base na preferência salva
+        formatToggle.textContent = is24HourFormat ? 'Formato 12h' : 'Formato 24h';
+        
+        // Dias da semana em português
+        const weekdays = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+        
+        // Meses em português
+        const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+        // Create spikes
+        for(let s = 0; s < 60; s++) {
+            const mSpikEl = document.createElement('i');
+            const sSpikEl = document.createElement('i');
+            
+            mSpikEl.className = 'spike';
+            sSpikEl.className = 'spike';
+            
+            mSpikEl.style = `--rotate:${6 * s}deg`;
+            sSpikEl.style = `--rotate:${6 * s}deg`;
+
+            // Only show numbers at 5-minute intervals (hour markers)
+            if (s % 5 === 0) {
+                const hourNumber = s === 0 ? '00' : pad(s/5 * 5, 2);
+                mSpikEl.setAttribute('data-i', hourNumber);
+                sSpikEl.setAttribute('data-i', hourNumber);
+            }
+            
+            seconds.append(sSpikEl);
+            minutes.append(mSpikEl);
+        }
+        
+        function pad(num, size) {
+            num = num.toString();
+            while (num.length < size) num = "0" + num;
+            return num;
+        }
+
+        function getTime() {
+            const date = new Date();
+            const h = date.getHours();
+            const m = date.getMinutes();
+            const s = date.getSeconds();
+            
+            // Update date display
+            weekdayEl.textContent = weekdays[date.getDay()];
+            dayEl.textContent = pad(date.getDate(), 2);
+            monthEl.textContent = months[date.getMonth()];
+            yearEl.textContent = date.getFullYear();
+            
+            // Display hour based on format
+            if (is24HourFormat) {
+                hour.textContent = h < 10 ? '0' + h : h;
+            } else {
+                // Convert to 12-hour format
+                const displayHour = h % 12 || 12;
+                hour.textContent = displayHour < 10 ? '0' + displayHour : displayHour;
+            }
+            
+            minute.textContent = m < 10 ? '0' + m : m;
+            
+            // Calculate angles
+            const secondAngle = s * 6;
+            const minuteAngle = m * 6 + (s / 10);
+            const hourAngle = (h % 12) * 30 + (m / 2);
+            
+            // Apply rotations with smooth transitions
+            seconds.style = `--dRotate:${secondAngle}deg`;
+            minutes.style = `--dRotate:${minuteAngle}deg`;
+            
+            second.textContent = pad(s, 2);
+        }
+        
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-theme');
+            
+            // Salvar a preferência de tema no localStorage
+            if (document.body.classList.contains('light-theme')) {
+                localStorage.setItem('theme', 'light');
+            } else {
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+        
+        // Format toggle
+        formatToggle.addEventListener('click', () => {
+            is24HourFormat = !is24HourFormat;
+            formatToggle.textContent = is24HourFormat ? 'Formato 12h' : 'Formato 24h';
+            
+            // Salvar a preferência no localStorage
+            localStorage.setItem('clockFormat', is24HourFormat ? '24h' : '12h');
+            
+            getTime(); // Update immediately
+        });
+
+        // Initialize and update every second
+        getTime();
+        setInterval(getTime, 1000);
+    </script>
+</body>
+</html>
