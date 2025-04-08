@@ -204,6 +204,24 @@
         button:hover {
             opacity: 0.8;
         }
+        
+        /* Estilo para informações adicionais */
+        .additional-info {
+            color: var(--text-color);
+            font-family: "Comfortaa", sans-serif;
+            font-size: min(16px, 3.5vw);
+            margin: 5px 0 15px 0;
+            text-align: center;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .am-pm-indicator {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -220,6 +238,12 @@
         <span id="day">01</span> de 
         <span id="month">Janeiro</span> de 
         <span id="year">2023</span>
+    </div>
+    
+    <!-- Adicionar informações adicionais -->
+    <div class="additional-info">
+        <span id="timezone"></span>
+        <span id="am-pm" class="am-pm-indicator"></span>
     </div>
     
     <div class="controls">
@@ -239,52 +263,9 @@
         const yearEl = document.getElementById('year');
         const themeToggle = document.getElementById('theme-toggle');
         const formatToggle = document.getElementById('format-toggle');
+        const timezoneEl = document.getElementById('timezone');
+        const amPmEl = document.getElementById('am-pm');
         
-        // Verificar se há uma preferência salva no localStorage para o formato de hora
-        let is24HourFormat = localStorage.getItem('clockFormat') === '24h';
-        
-        // Verificar se há uma preferência salva no localStorage para o tema
-        if (localStorage.getItem('theme') === 'light') {
-            document.body.classList.add('light-theme');
-        }
-        
-        // Atualizar o texto do botão com base na preferência salva
-        formatToggle.textContent = is24HourFormat ? 'Formato 12h' : 'Formato 24h';
-        
-        // Dias da semana em português
-        const weekdays = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
-        
-        // Meses em português
-        const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-
-        // Create spikes
-        for(let s = 0; s < 60; s++) {
-            const mSpikEl = document.createElement('i');
-            const sSpikEl = document.createElement('i');
-            
-            mSpikEl.className = 'spike';
-            sSpikEl.className = 'spike';
-            
-            mSpikEl.style = `--rotate:${6 * s}deg`;
-            sSpikEl.style = `--rotate:${6 * s}deg`;
-
-            // Only show numbers at 5-minute intervals (hour markers)
-            if (s % 5 === 0) {
-                const hourNumber = s === 0 ? '00' : pad(s/5 * 5, 2);
-                mSpikEl.setAttribute('data-i', hourNumber);
-                sSpikEl.setAttribute('data-i', hourNumber);
-            }
-            
-            seconds.append(sSpikEl);
-            minutes.append(mSpikEl);
-        }
-        
-        function pad(num, size) {
-            num = num.toString();
-            while (num.length < size) num = "0" + num;
-            return num;
-        }
-
         function getTime() {
             const date = new Date();
             const h = date.getHours();
@@ -296,6 +277,11 @@
             dayEl.textContent = pad(date.getDate(), 2);
             monthEl.textContent = months[date.getMonth()];
             yearEl.textContent = date.getFullYear();
+            
+            // Update timezone and AM/PM indicator
+            timezoneEl.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone.replace(/_/g, ' ');
+            amPmEl.textContent = h >= 12 ? 'PM' : 'AM';
+            amPmEl.style.display = is24HourFormat ? 'none' : 'inline';
             
             // Display hour based on format
             if (is24HourFormat) {
